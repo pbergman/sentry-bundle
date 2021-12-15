@@ -1,10 +1,8 @@
 ## Sentry Bundle
 
-because the monolog handler provided by [entry/sentry-symfony](https://github.com/getsentry/sentry-symfony) will push all logs individually instead of using breadcrumbs this handler is created.    
+I have created this bundle because the [entry/sentry-symfony](https://github.com/getsentry/sentry-symfony) was not using the batch handler from monolog when connected with a buffer handler. This resulted in all messaged from a request being delivered individually instead of using breadcrumbs.   
 
-when you configure your handler after a fingercrossed, buffer or any other handler that calls the `Monolog\Formatter\FormatterInterface::handleBatch` this will then create one message with rest being breadcrumbs of the original message.
-
-so you could install like:
+So with this extension you could configure monolog like this:
 
 ```
     handlers:
@@ -15,15 +13,20 @@ so you could install like:
             excluded_http_codes: [404, 405]
         grouped:
             type: whatfailuregroup
-            members: [ streamed, sentry ]
+            members: [ streamed, sentry_deduplicated ]
         streamed:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
+        sentry_deduplicated:
+            type:    deduplication
+            handler: sentry                  
         sentry:
             type: sentry
             level: !php/const Monolog\Logger::INFO
             hub_id: Sentry\State\HubInterface
 ```
 
-and when an error message is dispatched to sentry with breadcrumbs from all messages that equal or higher than INFO.
+And when the fingercrossed handler get an error message, all messages in the buffer of INFO or higher will be grouped and send to sentry.  
+
+This bundle has also created a bridge between the native hooks ([before_breadcrumb an before_send](https://docs.sentry.io/platforms/php/configuration/options/#hooks)) and symfony dispatcher. So now you can just create listener that listens to `PBergman\Bundle\SentryBundle\Events::EVENT_BEFORE_SEND` or `PBergman\Bundle\SentryBundle\Events::EVENT_BEFORE_BREADCRUMB`   

@@ -48,16 +48,9 @@ class SentryHandler extends AbstractHandler
 
     public function handleBatch(array $records)
     {
-        if (empty($records)) {
+        if ([] === $records = \array_filter($records, [$this, 'isHandling'])) {
             return;
         }
-
-        $records = array_filter(
-            $records,
-            static function($record) {
-                return $this->handle($record);
-            }
-        );
 
         $levels  = \array_column($records, 'level');
         $index   = \array_search(\max($levels), $levels);
