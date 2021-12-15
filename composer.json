@@ -1,0 +1,20 @@
+{
+    "name": "pbergman/sentry-bundle",
+    "description": "Monolog sentry handler with support for breadcrumbs and sentry dispatching events",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Philip Bergman",
+            "email": "pbergman@live.nl"
+        }
+    ],
+    "require": {
+        "php": ">=7.4.0",
+        "sentry/sentry-symfony": "^4.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "PBergman\\Bundle\\SentryBundle\\": "src/"
+        }
+    }
+}
