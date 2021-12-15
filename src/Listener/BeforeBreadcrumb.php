@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace PBergman\Bundle\SentryBundle\Listener;
 
+use PBergman\Bundle\SentryBundle\Events;
 use PBergman\Bundle\SentryBundle\Events\BeforeBreadcrumbEvent;
 use Sentry\Breadcrumb;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -18,6 +19,6 @@ class BeforeBreadcrumb
 
     public function __invoke(Breadcrumb $breadcrumb): ?Breadcrumb
     {
-        return $this->dispatcher->dispatch(new BeforeBreadcrumbEvent($breadcrumb))->getBreadcrumb();
+        return $this->dispatcher->dispatch(new BeforeBreadcrumbEvent($breadcrumb), Events::EVENT_BEFORE_BREADCRUMB)->getBreadcrumb();
     }
 }
