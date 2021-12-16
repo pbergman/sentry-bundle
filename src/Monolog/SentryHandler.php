@@ -15,6 +15,9 @@ use Sentry\State\Scope;
 class SentryHandler extends AbstractHandler
 {
     private $hub;
+    private $addTagsToScope = false;
+    private $addExtraToScope = false;
+    private $addBreadcrumbsToScope = false;
 
     public function __construct(HubInterface $hub, $level = Logger::DEBUG, bool $bubble = true)
     {
@@ -77,16 +80,22 @@ class SentryHandler extends AbstractHandler
             $scope->setExtra('monolog.channel', $record['channel']);
             $scope->setExtra('monolog.level', $record['level_name']);
 
-            foreach ((array)($record['context']['extra'] ?? []) as $key => $value) {
-                $scope->setExtra((string) $key, $value);
+            if ($this->addExtraToScope) {
+                foreach ((array)($record['context']['extra'] ?? []) as $key => $value) {
+                    $scope->setExtra((string) $key, $value);
+                }
             }
 
-            foreach ((array)($record['context']['tags'] ?? []) as $key => $value) {
-                $scope->setTag((string)$key, $value);
+            if ($this->addTagsToScope) {
+                foreach ((array)($record['context']['tags'] ?? []) as $key => $value) {
+                    $scope->setTag((string)$key, $value);
+                }
             }
 
-            foreach ($breadcrumbs as $breadcrumb) {
-                $scope->addBreadcrumb($this->toBreadcrumb($breadcrumb));
+            if ($this->addBreadcrumbsToScope) {
+                foreach ($breadcrumbs as $breadcrumb) {
+                    $scope->addBreadcrumb($this->toBreadcrumb($breadcrumb));
+                }
             }
 
             $this->hub->captureEvent($event, $hint);
@@ -140,5 +149,23 @@ class SentryHandler extends AbstractHandler
             'data'      => (!empty($record['context']) ? $record['context'] : []),
             'timestamp' => (float)$record['datetime']->format('U'),
         ]);
+    }
+
+    public function setAddTagsToScope(bool $set): AbstractHandler
+    {
+        $this->addTagsToScope = $set;
+        return $this;
+    }
+
+    public function setAddExtraToScope(bool $set): AbstractHandler
+    {
+        $this->addExtraToScope = $set;
+        return $this;
+    }
+
+    public function setAddBreadcrumbsToScope(bool $set): AbstractHandler
+    {
+        $this->addBreadcrumbsToScope = $set;
+        return $this;
     }
 }

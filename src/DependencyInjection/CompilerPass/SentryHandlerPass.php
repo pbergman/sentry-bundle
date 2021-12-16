@@ -12,9 +12,13 @@ class SentryHandlerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         if ($container->hasDefinition('monolog.handler.sentry')) {
-            $container
-                ->getDefinition('monolog.handler.sentry')
-                ->setClass(SentryHandler::class);
+            $definition = $container->getDefinition('monolog.handler.sentry');
+            $params     = $container->getParameter('pbergman.sentry_handler.options');
+            $definition
+                ->setClass(SentryHandler::class)
+                ->addMethodCall('setAddTagsToScope', [$params['scope']['add_tags']])
+                ->addMethodCall('setAddExtraToScope', [$params['scope']['add_extra']])
+                ->addMethodCall('setAddBreadcrumbsToScope', [$params['scope']['add_breadcrumbs']]);
         }
     }
 }

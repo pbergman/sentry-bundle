@@ -30,3 +30,12 @@ So with this extension you could configure monolog like this:
 And when the fingercrossed handler get an error message, all messages in the buffer of INFO or higher will be grouped and send to sentry.  
 
 This bundle has also created a bridge between the native hooks ([before_breadcrumb an before_send](https://docs.sentry.io/platforms/php/configuration/options/#hooks)) and symfony dispatcher. So now you can just create listener that listens to `PBergman\Bundle\SentryBundle\Events::EVENT_BEFORE_SEND` or `PBergman\Bundle\SentryBundle\Events::EVENT_BEFORE_BREADCRUMB`   
+
+By default it will create a listener that will filter exception classes (see `bin/console config:dump-reference p_bergman_sentry`) to disable add the following config: 
+
+```
+p_bergman_sentry:
+    excluded_exceptions: ~
+```
+
+Or set there the desired classes.
