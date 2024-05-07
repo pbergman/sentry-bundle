@@ -8,7 +8,7 @@ use Symfony\Contracts\EventDispatcher\Event as BaseEvent;
 
 final class BeforeBreadcrumbEvent extends BaseEvent
 {
-    private $breadcrumb;
+    private Breadcrumb $breadcrumb;
 
     public function __construct(Breadcrumb $breadcrumb)
     {

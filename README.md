@@ -22,9 +22,8 @@ So with this extension you could configure monolog like this:
             type:    deduplication
             handler: sentry                  
         sentry:
-            type: sentry
-            level: !php/const Monolog\Logger::INFO
-            hub_id: Sentry\State\HubInterface
+            type: service
+            id: pbergman.sentry_handler
 ```
 
 And when the fingercrossed handler get an error message, all messages in the buffer of INFO or higher will be grouped and send to sentry.  

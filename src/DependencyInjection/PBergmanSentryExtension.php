@@ -5,6 +5,8 @@ namespace PBergman\Bundle\SentryBundle\DependencyInjection;
 
 use PBergman\Bundle\SentryBundle\Events;
 use PBergman\Bundle\SentryBundle\Listener\ExceptionExcludeListener;
+use PBergman\Bundle\SentryBundle\Listener\ScopeRecordListener;
+use PBergman\Bundle\SentryBundle\Listener\ScopeRequestListener;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -20,11 +22,45 @@ class PBergmanSentryExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         if (false === empty($config['excluded_exceptions'])) {
-            $def = new Definition(ExceptionExcludeListener::class, [$config['excluded_exceptions']]);
-            $def->setPublic(false);
-            $def->addTag('kernel.event_listener', ['event' => Events::EVENT_BEFORE_SEND, 'lazy' => true]);
-            $container->setDefinition(ExceptionExcludeListener::class, $def);
+            $container->removeDefinition(ExceptionExcludeListener::class);
+        } else {
+            $container
+                ->getDefinition(ExceptionExcludeListener::class)
+                ->setArgument(0, $config['excluded_exceptions']);
         }
+
+        $mode = 0;
+
+        if ($config['scope']['add_tags']) {
+            $mode |= ScopeRecordListener::ADD_TAGS;
+        }
+
+        if ($config['scope']['add_extra']) {
+            $mode |= ScopeRecordListener::ADD_EXTRA;
+        }
+
+        if ($config['scope']['add_breadcrumbs']) {
+            $mode |= ScopeRecordListener::ADD_BREADCRUMBS;
+        }
+
+        if (0 === $mode) {
+            $container->removeDefinition(ScopeRecordListener::class);
+        } else {
+            $container
+                ->getDefinition(ScopeRecordListener::class)
+                ->setArgument(0, $mode);
+        }
+
+        if (false === $config['scope']['add_request']) {
+            $container->removeDefinition(ScopeRequestListener::class);
+        }
+
+
+//
+//        <service id="PBergman\Bundle\SentryBundle\Monolog\Listener\RequestScopeListener" public="false">
+//            <tag name="kernel.event_listener" event="pbergman.sentry.scope_provider" lazy="true"/>
+//        </service>
+
 
         $container->setParameter('pbergman.sentry_handler.options', ['scope' => $config['scope']]);
     }

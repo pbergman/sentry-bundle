@@ -4,10 +4,35 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <defaults autowire="true" autoconfigure="true"/>
+
+        <prototype
+                namespace="PBergman\Bundle\SentryBundle"
+                resource="../../*"
+                exclude="../../{DependencyInjection,CommandBackup}"
+        />
+
         <service id="PBergman\Bundle\SentryBundle\Listener\AbstractEventDispatcherBridge" abstract="true">
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
         </service>
+
         <service id="PBergman\Bundle\SentryBundle\Listener\BeforeSendListener" parent="PBergman\Bundle\SentryBundle\Listener\AbstractEventDispatcherBridge" />
+
         <service id="PBergman\Bundle\SentryBundle\Listener\BeforeBreadcrumbListener" parent="PBergman\Bundle\SentryBundle\Listener\AbstractEventDispatcherBridge" />
+
+        <service id="pbergman.sentry_handler"  class="PBergman\Bundle\SentryBundle\Monolog\SentryHandler"/>
+
+        <service id="PBergman\Bundle\SentryBundle\Monolog\Listener\ScopeRecordListener" public="false">
+            <tag name="kernel.event_listener" event="pbergman.sentry.scope_provider" lazy="true"/>
+        </service>
+
+        <service id="PBergman\Bundle\SentryBundle\Monolog\Listener\ScopeRequestListener" public="false">
+            <tag name="kernel.event_listener" event="pbergman.sentry.scope_provider" lazy="true"/>
+        </service>
+
+        <service id="PBergman\Bundle\SentryBundle\Monolog\Listener\ExceptionExcludeListener" public="false">
+            <tag name="kernel.event_listener" event="pbergman.sentry.before_send" lazy="true"/>
+        </service>
+
     </services>
 </container>

@@ -5,24 +5,26 @@ namespace PBergman\Bundle\SentryBundle\Monolog;
 
 use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
-use Sentry\Breadcrumb;
+use PBergman\Bundle\SentryBundle\Events;
+use PBergman\Bundle\SentryBundle\Events\ScopeEvent;
 use Sentry\Event;
 use Sentry\EventHint;
 use Sentry\Severity;
 use Sentry\State\HubInterface;
 use Sentry\State\Scope;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SentryHandler extends AbstractHandler
 {
-    private $hub;
-    private $addTagsToScope = false;
-    private $addExtraToScope = false;
-    private $addBreadcrumbsToScope = false;
+    private HubInterface $hub;
+    private EventDispatcherInterface $dispatcher;
 
-    public function __construct(HubInterface $hub, $level = Logger::DEBUG, bool $bubble = true)
+    public function __construct(HubInterface $hub, EventDispatcherInterface $dispatcher, $level = Logger::DEBUG, bool $bubble = true)
     {
         parent::__construct($level, $bubble);
-        $this->hub = $hub;
+
+        $this->hub        = $hub;
+        $this->dispatcher = $dispatcher;
     }
 
     public function handle(array $record)
@@ -77,27 +79,7 @@ class SentryHandler extends AbstractHandler
         }
 
         $this->hub->withScope(function (Scope $scope) use ($record, $event, $hint, $breadcrumbs): void {
-            $scope->setExtra('monolog.channel', $record['channel']);
-            $scope->setExtra('monolog.level', $record['level_name']);
-
-            if ($this->addExtraToScope) {
-                foreach ((array)($record['context']['extra'] ?? []) as $key => $value) {
-                    $scope->setExtra((string) $key, $value);
-                }
-            }
-
-            if ($this->addTagsToScope) {
-                foreach ((array)($record['context']['tags'] ?? []) as $key => $value) {
-                    $scope->setTag((string)$key, $value);
-                }
-            }
-
-            if ($this->addBreadcrumbsToScope) {
-                foreach ($breadcrumbs as $breadcrumb) {
-                    $scope->addBreadcrumb($this->toBreadcrumb($breadcrumb));
-                }
-            }
-
+            $this->dispatcher->dispatch(new ScopeEvent($scope, ...[$record, ...$breadcrumbs]), Events::EVENT_SCOPE_PROVIDER);
             $this->hub->captureEvent($event, $hint);
         });
     }
@@ -120,52 +102,5 @@ class SentryHandler extends AbstractHandler
             default:
                 return Severity::info();
         }
-    }
-
-    private function getBreadcrumbLevelFromLevel(int $level): string
-    {
-        switch ($level) {
-            case Logger::DEBUG:
-                return Breadcrumb::LEVEL_DEBUG;
-            case Logger::INFO:
-            case Logger::NOTICE:
-                return Breadcrumb::LEVEL_INFO;
-            case Logger::WARNING:
-                return Breadcrumb::LEVEL_WARNING;
-            case Logger::ERROR:
-                return Breadcrumb::LEVEL_ERROR;
-            default:
-                return Breadcrumb::LEVEL_FATAL;
-        }
-    }
-
-    private function toBreadcrumb(array $record): Breadcrumb
-    {
-        return Breadcrumb::fromArray([
-            'level'     => $this->getBreadcrumbLevelFromLevel($record['level']),
-            'type'      => ($record['level'] >= Logger::ERROR ? Breadcrumb::TYPE_ERROR: Breadcrumb::TYPE_DEFAULT),
-            'category'  => ($record['channel'] ?? 'N/A'),
-            'message'   => $record['message'],
-            'data'      => (!empty($record['context']) ? $record['context'] : []),
-            'timestamp' => (float)$record['datetime']->format('U'),
-        ]);
-    }
-
-    public function setAddTagsToScope(bool $set): AbstractHandler
-    {
-        $this->addTagsToScope = $set;
-        return $this;
-    }
-
-    public function setAddExtraToScope(bool $set): AbstractHandler
-    {
-        $this->addExtraToScope = $set;
-        return $this;
-    }
-
-    public function setAddBreadcrumbsToScope(bool $set): AbstractHandler
-    {
-        $this->addBreadcrumbsToScope = $set;
-        return $this;
     }
 }

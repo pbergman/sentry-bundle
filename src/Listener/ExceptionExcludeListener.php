@@ -7,7 +7,7 @@ use PBergman\Bundle\SentryBundle\Events\BeforeSendEvent;
 
 class ExceptionExcludeListener
 {
-    private $exclude;
+    private array $exclude;
 
     public function __construct(array $exclude)
     {
@@ -18,7 +18,7 @@ class ExceptionExcludeListener
     {
         if (null !== $hint = $event->getHint()) {
             foreach ($this->exclude as $exclude) {
-                if (is_a($hint->exception, $exclude, true)) {
+                if (\is_a($hint->exception, $exclude, true)) {
                     $event->setEvent(null);
                     $event->stopPropagation();
                     return;

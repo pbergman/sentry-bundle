@@ -17,5 +17,10 @@
         "psr-4": {
             "PBergman\\Bundle\\SentryBundle\\": "src/"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     }
 }

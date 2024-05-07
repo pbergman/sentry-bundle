@@ -11,6 +11,8 @@ class SentryHandlerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
+//        $container->getAutoconfiguredInstanceof()
+
         if ($container->hasDefinition('monolog.handler.sentry')) {
             $definition = $container->getDefinition('monolog.handler.sentry');
             $params     = $container->getParameter('pbergman.sentry_handler.options');

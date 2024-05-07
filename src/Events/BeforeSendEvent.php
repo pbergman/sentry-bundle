@@ -9,8 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event as BaseEvent;
 
 final class BeforeSendEvent extends BaseEvent
 {
-    private $event;
-    private $hint;
+    private Event $event;
+    private ?EventHint $hint;
 
     public function __construct(Event $event, ?EventHint $hint)
     {

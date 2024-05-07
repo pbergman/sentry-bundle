@@ -25,7 +25,7 @@ class Configuration implements ConfigurationInterface
                         'Symfony\Component\HttpKernel\Exception\NotFoundHttpException',
                         'Symfony\Component\Security\Core\Exception\AccessDeniedException',
                     ])
-            ->end()
+                ->end()
                 ->arrayNode('scope')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -39,6 +39,10 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->booleanNode('add_breadcrumbs')
                             ->info('When true it will build breadcrumbs when handle batch is called.')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('add_request')
+                            ->info('When true it will add request context to scope.')
                             ->defaultTrue()
                         ->end()
                     ->end()

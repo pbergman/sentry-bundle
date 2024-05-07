@@ -5,6 +5,7 @@ namespace PBergman\Bundle\SentryBundle;
 
 class Events
 {
-    const EVENT_BEFORE_SEND       = 'pbergman.sentry.before_send';
-    const EVENT_BEFORE_BREADCRUMB = 'pbergman.sentry.before_breadcrumb';
+    const EVENT_BEFORE_SEND         = 'pbergman.sentry.before_send';
+    const EVENT_BEFORE_BREADCRUMB   = 'pbergman.sentry.before_breadcrumb';
+    const EVENT_SCOPE_PROVIDER      = 'pbergman.sentry.scope_provider';
 }
