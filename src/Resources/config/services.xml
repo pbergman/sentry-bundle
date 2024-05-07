@@ -12,13 +12,9 @@
                 exclude="../../{DependencyInjection,CommandBackup}"
         />
 
-        <service id="PBergman\Bundle\SentryBundle\Listener\AbstractEventDispatcherBridge" abstract="true">
-            <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
-        </service>
+        <service id="PBergman\Bundle\SentryBundle\Listener\BeforeSendListener" />
 
-        <service id="PBergman\Bundle\SentryBundle\Listener\BeforeSendListener" parent="PBergman\Bundle\SentryBundle\Listener\AbstractEventDispatcherBridge" autowire="false" />
-
-        <service id="PBergman\Bundle\SentryBundle\Listener\BeforeBreadcrumbListener" parent="PBergman\Bundle\SentryBundle\Listener\AbstractEventDispatcherBridge" autowire="false" />
+        <service id="PBergman\Bundle\SentryBundle\Listener\BeforeBreadcrumbListener"/>
 
         <service id="pbergman.sentry_handler"  class="PBergman\Bundle\SentryBundle\Monolog\SentryHandler"/>
 
