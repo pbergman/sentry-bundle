@@ -18,15 +18,15 @@
 
         <service id="pbergman.sentry_handler"  class="PBergman\Bundle\SentryBundle\Monolog\SentryHandler"/>
 
-        <service id="PBergman\Bundle\SentryBundle\Monolog\Listener\ScopeRecordListener" public="false">
+        <service id="PBergman\Bundle\SentryBundle\Listener\ScopeRecordListener" public="false">
             <tag name="kernel.event_listener" event="pbergman.sentry.scope_provider" lazy="true"/>
         </service>
 
-        <service id="PBergman\Bundle\SentryBundle\Monolog\Listener\ScopeRequestListener" public="false">
+        <service id="PBergman\Bundle\SentryBundle\Listener\ScopeRequestListener" public="false">
             <tag name="kernel.event_listener" event="pbergman.sentry.scope_provider" lazy="true"/>
         </service>
 
-        <service id="PBergman\Bundle\SentryBundle\Monolog\Listener\ExceptionExcludeListener" public="false">
+        <service id="PBergman\Bundle\SentryBundle\Listener\ExceptionExcludeListener" public="false">
             <tag name="kernel.event_listener" event="pbergman.sentry.before_send" lazy="true"/>
         </service>
 
