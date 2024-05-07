@@ -7,7 +7,7 @@
         <defaults autowire="true" autoconfigure="true"/>
 
         <prototype
-                namespace="PBergman\Bundle\SentryBundle"
+                namespace="PBergman\Bundle\SentryBundle\"
                 resource="../../*"
                 exclude="../../{DependencyInjection,CommandBackup}"
         />
